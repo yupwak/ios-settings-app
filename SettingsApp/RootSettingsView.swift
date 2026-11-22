@@ -10,7 +10,7 @@ struct RootSettingsView: View {
             List {
                 Section {
                     NavigationLink {
-                        AboutView()
+                        AppleAccountView()
                     } label: {
                         HStack(spacing: 12) {
                             ZStack {
@@ -24,7 +24,7 @@ struct RootSettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(DeviceInfo.deviceName)
                                     .font(.system(size: 19, weight: .semibold))
-                                Text("Apple 账户、云端数据与安全")
+                                Text(MockAccount.email)
                                     .font(.system(size: 12))
                                     .foregroundStyle(.secondary)
                             }
