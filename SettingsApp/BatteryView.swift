@@ -10,7 +10,7 @@ struct BatteryView: View {
                 HStack {
                     Image(systemName: "battery.100")
                         .font(.system(size: 34))
-                        .foregroundStyle(level == "未知" ? .secondary : .green)
+                        .foregroundStyle(level == "未知" ? Color.secondary : Color.green)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(level)
                             .font(.system(size: 26, weight: .semibold))

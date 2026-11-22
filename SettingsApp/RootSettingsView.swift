@@ -34,9 +34,17 @@ struct RootSettingsView: View {
                 }
 
                 ForEach(filteredSections) { section in
-                    Section(section.title) {
-                        ForEach(section.items) { item in
-                            row(item)
+                    if let title = section.title {
+                        Section(title) {
+                            ForEach(section.items) { item in
+                                row(item)
+                            }
+                        }
+                    } else {
+                        Section {
+                            ForEach(section.items) { item in
+                                row(item)
+                            }
                         }
                     }
                 }
