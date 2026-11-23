@@ -102,6 +102,8 @@ struct RootSettingsView: View {
             NavigationLink { PrivacyView() } label: { label(item) }
         case .aboutApp:
             NavigationLink { AppInfoView() } label: { label(item) }
+        case .notifications:
+            NavigationLink { NotificationsView() } label: { label(item) }
         }
     }
 
@@ -127,7 +129,8 @@ struct RootSettingsView: View {
                 SettingsItem(title: "显示与亮度", symbol: "sun.max.fill", color: .blue, destination: .display),
                 SettingsItem(title: "电池", symbol: "battery.100", color: .green, destination: .battery),
                 SettingsItem(title: "存储空间", symbol: "internaldrive.fill", color: .indigo, destination: .storage),
-                SettingsItem(title: "隐私与安全", symbol: "hand.raised.fill", color: .blue, destination: .privacy)
+                SettingsItem(title: "隐私与安全", symbol: "hand.raised.fill", color: .blue, destination: .privacy),
+                SettingsItem(title: "通知", symbol: "bell.badge.fill", color: .red, destination: .notifications)
             ]),
             SettingsSection(title: "本机", items: [
                 SettingsItem(title: "关于本机", symbol: "info.circle.fill", color: .gray, destination: .about,
@@ -183,7 +186,7 @@ struct SettingsItem: Identifiable {
     let destination: Destination
     var value: String? = nil
 
-    enum Destination { case about, general, display, storage, battery, privacy, aboutApp }
+    enum Destination { case about, general, display, storage, battery, privacy, aboutApp, notifications }
 }
 
 struct SettingsSection: Identifiable {

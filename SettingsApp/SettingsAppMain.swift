@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct SettingsAppMain: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @AppStorage("appearance") private var appearance = 0
 
     var body: some Scene {
