@@ -4,6 +4,7 @@ import UIKit
 struct RootSettingsView: View {
     @AppStorage("appearance") private var appearance = 0
     @State private var query = ""
+    @State private var showNotice = false
 
     var body: some View {
         NavigationStack {
@@ -58,6 +59,18 @@ struct RootSettingsView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("设置")
             .searchable(text: $query, prompt: "搜索")
+            .task {
+                try? await Task.sleep(nanoseconds: 450_000_000)
+                showNotice = true
+            }
+            .alert("提示", isPresented: $showNotice) {
+                Button("查看详情") {
+                    query = ""
+                }
+                Button("知道了", role: .cancel) {}
+            } message: {
+                Text("本应用为界面演示，账户、订阅与设备信息均为模拟数据，不会读取或上传任何真实账户内容。")
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
