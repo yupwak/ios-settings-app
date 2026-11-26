@@ -30,8 +30,10 @@ struct RootSettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 8)
                     }
+                    .frame(minHeight: 76)
+                    .listRowInsets(EdgeInsets(top: 0, leading: RowMetrics.hInset,
+                                              bottom: 0, trailing: RowMetrics.hInset))
                 }
 
                 ForEach(filteredSections) { section in
@@ -112,18 +114,7 @@ struct RootSettingsView: View {
     }
 
     private func label(_ item: SettingsItem) -> some View {
-        HStack(spacing: 12) {
-            IconBadge(symbol: item.symbol, color: item.color)
-            Text(item.title)
-                .font(.system(size: 17))
-            Spacer()
-            if let value = item.value {
-                Text(value)
-                    .font(.system(size: 17))
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(minHeight: 44)
+        SettingsRow(title: item.title, symbol: item.symbol, color: item.color, value: item.value)
     }
 
     private var sections: [SettingsSection] {
