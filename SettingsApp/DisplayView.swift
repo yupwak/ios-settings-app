@@ -12,6 +12,7 @@ struct DisplayView: View {
                     } label: {
                         HStack {
                             Text(title(value))
+                                .font(.system(size: 17))
                                 .foregroundStyle(.primary)
                             Spacer()
                             if appearance == value {
@@ -19,6 +20,8 @@ struct DisplayView: View {
                                     .foregroundStyle(Color.accentColor)
                             }
                         }
+                        .frame(minHeight: RowMetrics.height)
+                        .settingRowLayout(separatorLeading: 0)
                     }
                 }
             }
