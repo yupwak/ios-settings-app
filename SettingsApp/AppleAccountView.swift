@@ -88,31 +88,13 @@ struct AppleAccountView: View {
                 NavigationLink {
                     PersonalInfoView()
                 } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(symbol: "person.text.rectangle.fill", color: .blue)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("个人信息")
-                            Text("姓名、生日、联系方式")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(minHeight: 48)
+                    SettingsSubtitleRow(title: "个人信息", subtitle: "姓名、生日、联系方式", symbol: "person.text.rectangle.fill", color: .blue)
                 }
 
                 NavigationLink {
                     SecurityView()
                 } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(symbol: "lock.shield.fill", color: .green)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("登录与安全")
-                            Text("密码、双重认证、恢复联系人")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(minHeight: 48)
+                    SettingsSubtitleRow(title: "登录与安全", subtitle: "密码、双重认证、恢复联系人", symbol: "lock.shield.fill", color: .green)
                 }
             }
 
@@ -120,31 +102,13 @@ struct AppleAccountView: View {
                 NavigationLink {
                     PaymentView()
                 } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(symbol: "creditcard.fill", color: .orange)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("付款与配送")
-                            Text("Visa •••• 1234")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(minHeight: 48)
+                    SettingsSubtitleRow(title: "付款与配送", subtitle: "Visa •••• 1234", symbol: "creditcard.fill", color: .orange)
                 }
 
                 NavigationLink {
                     SubscriptionsView()
                 } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(symbol: "arrow.triangle.2.circlepath", color: .pink)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("订阅")
-                            Text("2 项进行中的订阅")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(minHeight: 48)
+                    SettingsSubtitleRow(title: "订阅", subtitle: "2 项进行中的订阅", symbol: "arrow.triangle.2.circlepath", color: .pink)
                 }
             }
 
@@ -152,31 +116,13 @@ struct AppleAccountView: View {
                 NavigationLink {
                     FamilyView()
                 } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(symbol: "person.2.fill", color: .purple)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("家人共享")
-                            Text("3 位成员")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(minHeight: 48)
+                    SettingsSubtitleRow(title: "家人共享", subtitle: "3 位成员", symbol: "person.2.fill", color: .purple)
                 }
 
                 NavigationLink {
                     MediaView()
                 } label: {
-                    HStack(spacing: 12) {
-                        IconBadge(symbol: "app.badge.fill", color: .blue)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("媒体与购买项目")
-                            Text("App Store、iTunes Store")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(minHeight: 48)
+                    SettingsSubtitleRow(title: "媒体与购买项目", subtitle: "App Store、iTunes Store", symbol: "app.badge.fill", color: .blue)
                 }
             } header: {
                 Text("账户")
@@ -205,7 +151,8 @@ struct AppleAccountView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 2)
+                        .frame(minHeight: 60)
+                        .settingRowLayout(separatorLeading: RowMetrics.separatorAfterIcon)
                     }
                 }
             }
@@ -369,7 +316,8 @@ struct SubscriptionsView: View {
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                     }
-                    .frame(minHeight: 48)
+                    .frame(minHeight: 60)
+                    .settingRowLayout(separatorLeading: RowMetrics.separatorAfterIcon)
                 }
             } header: {
                 Text("进行中")
@@ -404,7 +352,8 @@ struct FamilyView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .frame(minHeight: 48)
+                    .frame(minHeight: 60)
+                    .settingRowLayout(separatorLeading: RowMetrics.separatorAfterIcon)
                 }
             } header: {
                 Text("成员")
