@@ -97,7 +97,7 @@ struct AppleAccountView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
 
                 NavigationLink {
@@ -112,7 +112,7 @@ struct AppleAccountView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
             }
 
@@ -129,7 +129,7 @@ struct AppleAccountView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
 
                 NavigationLink {
@@ -144,7 +144,7 @@ struct AppleAccountView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
             }
 
@@ -161,7 +161,7 @@ struct AppleAccountView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
 
                 NavigationLink {
@@ -176,7 +176,7 @@ struct AppleAccountView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
             } header: {
                 Text("账户")
@@ -369,7 +369,7 @@ struct SubscriptionsView: View {
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
             } header: {
                 Text("进行中")
@@ -404,7 +404,7 @@ struct FamilyView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 48)
                 }
             } header: {
                 Text("成员")

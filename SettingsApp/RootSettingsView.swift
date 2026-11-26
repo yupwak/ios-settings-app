@@ -24,13 +24,13 @@ struct RootSettingsView: View {
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(DeviceInfo.deviceName)
-                                    .font(.system(size: 19, weight: .semibold))
+                                    .font(.system(size: 20, weight: .semibold))
                                 Text(MockAccount.email)
-                                    .font(.system(size: 12))
+                                    .font(.system(size: 13))
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 8)
                     }
                 }
 
@@ -115,15 +115,15 @@ struct RootSettingsView: View {
         HStack(spacing: 12) {
             IconBadge(symbol: item.symbol, color: item.color)
             Text(item.title)
-                .font(.system(size: 16))
+                .font(.system(size: 17))
             Spacer()
             if let value = item.value {
                 Text(value)
-                    .font(.system(size: 15))
+                    .font(.system(size: 17))
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .frame(minHeight: 44)
     }
 
     private var sections: [SettingsSection] {
@@ -181,7 +181,7 @@ struct IconBadge: View {
             .frame(width: 29, height: 29)
             .overlay(
                 Image(systemName: symbol)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(.white)
             )
     }
