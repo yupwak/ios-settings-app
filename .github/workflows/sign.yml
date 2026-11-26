@@ -39,11 +39,17 @@ jobs:
           fi
           grep -c "BEGIN CERTIFICATE" "$PEM" || true
           grep -c "BEGIN.*PRIVATE KEY" "$PEM" || true
-          openssl pkcs12 -export -in "$PEM" -out "$RUNNER_TEMP/certs/fixed.p12" -passout "pass:$PASS"
           security create-keychain -p ci build.keychain
           security set-keychain-settings -lut 3600 build.keychain
           security unlock-keychain -p ci build.keychain
-          security import "$RUNNER_TEMP/certs/fixed.p12" -k build.keychain -P "$PASS" -T /usr/bin/codesign -A
+          # macOS 只认旧式 PKCS12（3DES + SHA1 MAC），新 OpenSSL 默认 AES/PBKDF2 会报 MAC verification failed
+          openssl pkcs12 -export -in "$PEM" -out "$RUNNER_TEMP/certs/fixed.p12" -passout "pass:$PASS" \
+            -certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1 -iter 2048 \
+            || openssl pkcs12 -export -in "$PEM" -out "$RUNNER_TEMP/certs/fixed.p12" -passout "pass:$PASS"
+          if ! security import "$RUNNER_TEMP/certs/fixed.p12" -k build.keychain -P "$PASS" -T /usr/bin/codesign -A; then
+            echo "p12 import failed, fallback to PEM"
+            security import "$PEM" -k build.keychain -f pemseq -T /usr/bin/codesign -A
+          fi
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci build.keychain >/dev/null
           security list-keychains -d user -s build.keychain
           echo "--- identities ---"
