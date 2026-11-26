@@ -106,6 +106,8 @@ struct RootSettingsView: View {
             NavigationLink { NotificationsView() } label: { label(item) }
         case .chat:
             NavigationLink { ChatDemoView() } label: { label(item) }
+        case .components:
+            NavigationLink { ComponentsView() } label: { label(item) }
         }
     }
 
@@ -140,6 +142,10 @@ struct RootSettingsView: View {
                              value: "iOS \(DeviceInfo.systemVersion)"),
                 SettingsItem(title: "外观", symbol: "circle.lefthalf.filled", color: .gray, destination: .display,
                              value: appearanceName)
+            ]),
+            SettingsSection(title: "界面", items: [
+                SettingsItem(title: "界面元素", symbol: "square.on.circle", color: .teal, destination: .components,
+                             value: "原生按钮 · 玻璃")
             ]),
             SettingsSection(title: "App", items: [
                 SettingsItem(title: "关于本应用", symbol: "app.badge.fill", color: .orange, destination: .aboutApp)
@@ -189,7 +195,7 @@ struct SettingsItem: Identifiable {
     let destination: Destination
     var value: String? = nil
 
-    enum Destination { case about, general, display, storage, battery, privacy, aboutApp, notifications, chat }
+    enum Destination { case about, general, display, storage, battery, privacy, aboutApp, notifications, chat, components }
 }
 
 struct SettingsSection: Identifiable {
