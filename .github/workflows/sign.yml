@@ -64,7 +64,12 @@ jobs:
           echo "--- identities ---"
           security find-identity -v -p codesigning build.keychain || true
           security cms -D -i "$RUNNER_TEMP/certs/app.mobileprovision" > "$RUNNER_TEMP/certs/profile.plist"
-          /usr/libexec/PlistBuddy -c "Print :Entitlements" "$RUNNER_TEMP/certs/profile.plist" > "$RUNNER_TEMP/certs/entitlements.plist"
+          python3 - "$RUNNER_TEMP/certs/profile.plist" "$RUNNER_TEMP/certs/entitlements.plist" <<'PY'
+          import plistlib, sys
+          d = plistlib.load(open(sys.argv[1], 'rb'))
+          plistlib.dump(d['Entitlements'], open(sys.argv[2], 'wb'), fmt=plistlib.FMT_XML)
+          PY
+          head -5 "$RUNNER_TEMP/certs/entitlements.plist"
           /usr/libexec/PlistBuddy -c "Print :ExpirationDate" "$RUNNER_TEMP/certs/profile.plist"
 
       - name: Install XcodeGen
