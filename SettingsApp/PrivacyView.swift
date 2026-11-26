@@ -19,11 +19,12 @@ struct PrivacyView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.0)
                             Text(item.2)
-                                .font(.system(size: 12))
+                                .font(.system(size: 13))
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .frame(minHeight: 60)
+                    .settingRowLayout(separatorLeading: RowMetrics.separatorAfterIcon)
                 }
             }
 
