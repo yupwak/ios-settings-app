@@ -8,8 +8,8 @@ struct GeneralView: View {
                 NavigationLink("存储空间") { StorageView() }
             }
             Section {
-                LabeledContent("系统版本", value: "iOS \(DeviceInfo.systemVersion)")
-                LabeledContent("机型", value: DeviceInfo.marketingName)
+                KeyValueRow(key: "系统版本", value: "iOS \(DeviceInfo.systemVersion)")
+                KeyValueRow(key: "机型", value: DeviceInfo.marketingName)
             }
             Section("说明") {
                 Text("这里展示的是本机真实系统信息，由系统接口读取。")
