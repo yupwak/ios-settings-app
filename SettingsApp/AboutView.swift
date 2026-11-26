@@ -61,12 +61,6 @@ struct AboutView: View {
     }
 
     private func infoRow(_ key: String, _ value: String) -> some View {
-        HStack {
-            Text(key)
-            Spacer()
-            Text(value)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
-        }
+        KeyValueRow(key: key, value: value)
     }
 }
