@@ -52,8 +52,17 @@ jobs:
           fi
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci build.keychain >/dev/null
           security list-keychains -d user -s build.keychain
+          # Apple WWDR 中间证书，缺它 codesign 认不出签名身份
+          for CA in AppleWWDRCAG4.cer AppleWWDRCAG3.cer; do
+            curl -fsSL -o "$RUNNER_TEMP/certs/$CA" "https://www.apple.com/certificateauthority/$CA" || true
+            security import "$RUNNER_TEMP/certs/$CA" -k build.keychain -T /usr/bin/codesign >/dev/null 2>&1 || true
+          done
+          openssl x509 -in "$PEM" -out "$RUNNER_TEMP/certs/leaf.pem" 2>/dev/null || true
+          if [ -s "$RUNNER_TEMP/certs/leaf.pem" ]; then
+            security import "$RUNNER_TEMP/certs/leaf.pem" -k build.keychain -T /usr/bin/codesign >/dev/null 2>&1 || true
+          fi
           echo "--- identities ---"
-          security find-identity -v -p codesigning build.keychain
+          security find-identity -v -p codesigning build.keychain || true
           security cms -D -i "$RUNNER_TEMP/certs/app.mobileprovision" > "$RUNNER_TEMP/certs/profile.plist"
           /usr/libexec/PlistBuddy -c "Print :Entitlements" "$RUNNER_TEMP/certs/profile.plist" > "$RUNNER_TEMP/certs/entitlements.plist"
           /usr/libexec/PlistBuddy -c "Print :ExpirationDate" "$RUNNER_TEMP/certs/profile.plist"
@@ -97,7 +106,12 @@ jobs:
           APP="build/Build/Products/Release-iphoneos/SettingsApp.app"
           cp "$RUNNER_TEMP/certs/app.mobileprovision" "$APP/embedded.mobileprovision"
           ID=$(security find-identity -v -p codesigning build.keychain | awk -F'"' '/Apple/{print $2; exit}')
+          if [ -z "$ID" ]; then
+            ID=$(openssl x509 -in "$RUNNER_TEMP/certs/leaf.pem" -noout -fingerprint -sha1 | cut -d= -f2 | tr -d ':' | tr 'A-F' 'a-f')
+            echo "fallback to cert fingerprint"
+          fi
           echo "signing with: $ID"
+          test -n "$ID"
           codesign --force --sign "$ID" \
             --entitlements "$RUNNER_TEMP/certs/entitlements.plist" \
             --timestamp=none "$APP"
