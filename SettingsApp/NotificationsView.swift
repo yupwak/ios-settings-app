@@ -85,7 +85,7 @@ struct NotificationsView: View {
                 Text(title)
                     .foregroundStyle(.primary)
                 Text(body)
-                    .font(.system(size: 12))
+                    .font(.system(size: 13))
                     .foregroundStyle(.secondary)
             }
             Spacer()
@@ -93,7 +93,8 @@ struct NotificationsView: View {
                 .font(.system(size: 13))
                 .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 2)
+        .frame(minHeight: 60)
+        .settingRowLayout(separatorLeading: RowMetrics.separatorAfterIcon)
     }
 
     private func send(title: String, body: String, symbol: String? = nil) {
