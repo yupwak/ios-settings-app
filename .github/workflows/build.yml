@@ -64,7 +64,12 @@ jobs:
         run: |
           set -e
           cd build/Build/Products/Release-iphoneos
-          zip -qry "$GITHUB_WORKSPACE/SettingsApp-unsigned.ipa" SettingsApp.app
+          rm -rf "$GITHUB_WORKSPACE/Payload"
+          mkdir -p "$GITHUB_WORKSPACE/Payload"
+          cp -R SettingsApp.app "$GITHUB_WORKSPACE/Payload/"
+          cd "$GITHUB_WORKSPACE"
+          rm -f SettingsApp-unsigned.ipa
+          zip -qry SettingsApp-unsigned.ipa Payload
           cd "$GITHUB_WORKSPACE"
           ls -lh SettingsApp-unsigned.ipa
 
