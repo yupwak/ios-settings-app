@@ -2,6 +2,10 @@ name: sign-ipa
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'signing/**'
 
 permissions:
   contents: write
