@@ -1,0 +1,106 @@
+name: sign-ipa
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sign:
+    runs-on: macos-26
+    timeout-minutes: 40
+    env:
+      BUNDLE_ID: com.duI6G.2cboa
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Import certificate
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/certs"
+          python3 -c 'import base64,sys;open(sys.argv[2],"wb").write(base64.b64decode(open(sys.argv[1]).read()))' "$PWD/signing/cert.p12.b64" "$RUNNER_TEMP/certs/cert.p12"
+          python3 -c 'import base64,sys;open(sys.argv[2],"wb").write(base64.b64decode(open(sys.argv[1]).read()))' "$PWD/signing/profile.b64" "$RUNNER_TEMP/certs/app.mobileprovision"
+          PASS="$(cat signing/pass.txt)"
+          security create-keychain -p "$PASS" build.keychain
+          security set-keychain-settings -lut 3600 build.keychain
+          security unlock-keychain -p "$PASS" build.keychain
+          security import "$RUNNER_TEMP/certs/cert.p12" -k build.keychain -P "$PASS" -T /usr/bin/codesign -A
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PASS" build.keychain >/dev/null
+          security list-keychains -d user -s build.keychain
+          echo "--- identities ---"
+          security find-identity -v -p codesigning build.keychain
+          security cms -D -i "$RUNNER_TEMP/certs/app.mobileprovision" > "$RUNNER_TEMP/certs/profile.plist"
+          /usr/libexec/PlistBuddy -c "Print :Entitlements" "$RUNNER_TEMP/certs/profile.plist" > "$RUNNER_TEMP/certs/entitlements.plist"
+          /usr/libexec/PlistBuddy -c "Print :ExpirationDate" "$RUNNER_TEMP/certs/profile.plist"
+          /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$RUNNER_TEMP/certs/profile.plist"
+
+      - name: Install XcodeGen
+        run: |
+          set -e
+          if command -v xcodegen >/dev/null 2>&1; then echo "XCODEGEN=xcodegen" >> "$GITHUB_ENV"; exit 0; fi
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen >/dev/null 2>&1 || true
+          if command -v xcodegen >/dev/null 2>&1; then echo "XCODEGEN=xcodegen" >> "$GITHUB_ENV"; exit 0; fi
+          URL=$(curl -fsSL https://api.github.com/repos/yonaskolb/XcodeGen/releases/latest \
+            | jq -r '.assets[] | select(.name | test("xcodegen.*\\.zip")) | .browser_download_url' | head -1)
+          curl -fsSL -o /tmp/xcodegen.zip "$URL"
+          unzip -q -o /tmp/xcodegen.zip -d /tmp/xg
+          BIN=$(find /tmp/xg -type f -name xcodegen | head -1)
+          chmod +x "$BIN"
+          echo "XCODEGEN=$BIN" >> "$GITHUB_ENV"
+
+      - name: Generate app icon
+        run: node tools/mkicon.mjs SettingsApp/Assets.xcassets/AppIcon.appiconset/icon1024.png
+
+      - name: Generate Xcode project
+        run: $XCODEGEN generate --spec project.yml
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild -project SettingsApp.xcodeproj \
+            -scheme SettingsApp \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build.log
+
+      - name: Sign
+        run: |
+          set -euo pipefail
+          APP="build/Build/Products/Release-iphoneos/SettingsApp.app"
+          cp "$RUNNER_TEMP/certs/app.mobileprovision" "$APP/embedded.mobileprovision"
+          ID=$(security find-identity -v -p codesigning build.keychain | awk -F'"' '/Apple/{print $2; exit}')
+          echo "signing with: $ID"
+          codesign --force --sign "$ID" \
+            --entitlements "$RUNNER_TEMP/certs/entitlements.plist" \
+            --timestamp=none "$APP"
+          echo "--- verify ---"
+          codesign -dv --entitlements :- "$APP" 2>&1 | head -40
+          codesign --verify --deep "$APP" && echo "codesign OK"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist"
+          ls -la "$APP"
+
+      - name: Package signed IPA
+        run: |
+          set -e
+          rm -rf "$GITHUB_WORKSPACE/Payload"
+          mkdir -p "$GITHUB_WORKSPACE/Payload"
+          cp -R build/Build/Products/Release-iphoneos/SettingsApp.app "$GITHUB_WORKSPACE/Payload/"
+          cd "$GITHUB_WORKSPACE"
+          rm -f SettingsApp-signed.ipa
+          zip -qry SettingsApp-signed.ipa Payload
+          ls -lh SettingsApp-signed.ipa
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: signed-${{ github.run_number }}
+          name: signed ${{ github.run_number }}
+          fail_on_unmatched_files: false
+          files: |
+            SettingsApp-signed.ipa
+            build.log
