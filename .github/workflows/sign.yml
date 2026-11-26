@@ -26,18 +26,31 @@ jobs:
           python3 -c 'import base64,sys;open(sys.argv[2],"wb").write(base64.b64decode(open(sys.argv[1]).read()))' "$PWD/signing/cert.p12.b64" "$RUNNER_TEMP/certs/cert.p12"
           python3 -c 'import base64,sys;open(sys.argv[2],"wb").write(base64.b64decode(open(sys.argv[1]).read()))' "$PWD/signing/profile.b64" "$RUNNER_TEMP/certs/app.mobileprovision"
           PASS="$(cat signing/pass.txt)"
-          security create-keychain -p "$PASS" build.keychain
+          P12="$RUNNER_TEMP/certs/cert.p12"
+          PEM="$RUNNER_TEMP/certs/all.pem"
+          openssl version
+          if openssl pkcs12 -in "$P12" -passin "pass:$PASS" -nodes -out "$PEM" 2>"$RUNNER_TEMP/certs/p12.err"; then
+            echo "p12 password ok"
+          elif openssl pkcs12 -in "$P12" -passin "pass:" -nodes -out "$PEM" 2>/dev/null; then
+            echo "p12 has empty password"
+            PASS=""
+          else
+            echo "=== p12 error ==="; cat "$RUNNER_TEMP/certs/p12.err"; exit 1
+          fi
+          grep -c "BEGIN CERTIFICATE" "$PEM" || true
+          grep -c "BEGIN.*PRIVATE KEY" "$PEM" || true
+          openssl pkcs12 -export -in "$PEM" -out "$RUNNER_TEMP/certs/fixed.p12" -passout "pass:$PASS"
+          security create-keychain -p ci build.keychain
           security set-keychain-settings -lut 3600 build.keychain
-          security unlock-keychain -p "$PASS" build.keychain
-          security import "$RUNNER_TEMP/certs/cert.p12" -k build.keychain -P "$PASS" -T /usr/bin/codesign -A
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PASS" build.keychain >/dev/null
+          security unlock-keychain -p ci build.keychain
+          security import "$RUNNER_TEMP/certs/fixed.p12" -k build.keychain -P "$PASS" -T /usr/bin/codesign -A
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci build.keychain >/dev/null
           security list-keychains -d user -s build.keychain
           echo "--- identities ---"
           security find-identity -v -p codesigning build.keychain
           security cms -D -i "$RUNNER_TEMP/certs/app.mobileprovision" > "$RUNNER_TEMP/certs/profile.plist"
           /usr/libexec/PlistBuddy -c "Print :Entitlements" "$RUNNER_TEMP/certs/profile.plist" > "$RUNNER_TEMP/certs/entitlements.plist"
           /usr/libexec/PlistBuddy -c "Print :ExpirationDate" "$RUNNER_TEMP/certs/profile.plist"
-          /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$RUNNER_TEMP/certs/profile.plist"
 
       - name: Install XcodeGen
         run: |
